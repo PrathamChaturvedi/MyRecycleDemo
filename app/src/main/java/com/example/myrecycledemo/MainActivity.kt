@@ -17,13 +17,14 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 class MainActivity : AppCompatActivity() {
     val rcv by lazy { findViewById<RecyclerView>(R.id.rcv)}
     val onClickAction = fun (weekday: Any){
-        val index =weekList.indexOf(weekday)
+        val index =weekList.indexOfFirst { it.weekday == weekday }
         if(index !=-1){
             val item = weekList[index]
             weekList[index]= item.copy(selected = true)
             rcv.adapter?.notifyItemChanged(index)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -37,8 +38,9 @@ class MainActivity : AppCompatActivity() {
 
 class WeekAdapters(val list: List<Weekdays>, val onClickAction : (Any)-> Unit ) : Adapter<WeekAdapters.WeekDaysViewHolder>() {
 
-    class WeekDaysViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+    inner class WeekDaysViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val weekday = itemView.findViewById<TextView>(R.id.tv_weekday)
+        val day_of_month = itemView.findViewById<TextView>(R.id.tv_day_of_month)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekDaysViewHolder {
@@ -53,8 +55,8 @@ class WeekAdapters(val list: List<Weekdays>, val onClickAction : (Any)-> Unit ) 
 
     override fun onBindViewHolder(holder: WeekDaysViewHolder, position: Int) {
         val d= list[position]
-        holder.itemView.findViewById<TextView>(R.id.tv_weekday).text= d.weekday
-        holder.itemView.findViewById<TextView>(R.id.tv_day_of_month).text= d.dayOfMonth.toString()
+        holder.weekday.text= d.weekday
+        holder.day_of_month.text= d.dayOfMonth.toString()
         holder.itemView.setOnClickListener{
             onClickAction(d.weekday)
             if(d.selected){
@@ -76,8 +78,6 @@ class WeekAdapters(val list: List<Weekdays>, val onClickAction : (Any)-> Unit ) 
     }
 
 }
-
-
 
 data class Weekdays(
     val weekday : String,
